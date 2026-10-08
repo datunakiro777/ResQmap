@@ -1,64 +1,37 @@
 {% extends "base.html" %}
+{% block body_class %}home-page{% endblock %}
 {% block head %}
-<link rel="stylesheet" href="{{ url_for('static', path='/home.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='/home.css') }}?v=6">
 {% endblock %}
 
 {% block content %}
-<div class="page">
-  <div class="hero">
-    <h1>Disaster Relief Response System</h1>
-    <p>Real-time location tracking and safety coordination for first responders during natural disasters and emergencies.</p>
-    <div class="hero-actions" id="hero-actions">
-      <a href="/register" class="btn btn-lg btn-hero-primary" id="hero-register">Get Started</a>
-      <a href="/login" class="btn btn-lg btn-hero-outline" id="hero-login">Sign In</a>
-      <a href="/map" class="btn btn-lg btn-hero-primary" id="hero-map" style="display:none">Open Live Map</a>
-    </div>
-  </div>
-
-  <div class="feature-grid">
-    <div class="feature-card">
-      <h3>Live Map Tracking</h3>
-      <p>GPS coordinates updated every 3 minutes. Color-coded markers show safety status at a glance.</p>
-    </div>
-    <div class="feature-card">
-      <h3>Safety Broadcasts</h3>
-      <p>Admins can send instant safety check notifications globally or to specific individuals.</p>
-    </div>
-    <div class="feature-card">
-      <h3>Police Dispatch</h3>
-      <p>Filter users by geographic radius to focus rescue operations on the affected disaster zone.</p>
-    </div>
-    <div class="feature-card">
-      <h3>Instant Alerts</h3>
-      <p>When a user reports danger, their marker turns red instantly and emergency dispatch is triggered.</p>
-    </div>
-  </div>
-
-  <div style="margin-top:32px;" class="card">
-    <div class="card-body" style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;">
-      <div>
-        <h2 style="margin-bottom:8px;">How Status Works</h2>
-        <p class="text-muted" style="margin-bottom:16px;">Every user is assigned one of three safety states:</p>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span class="status-pill pill-safe"><span class="status-dot status-safe"></span>Safe</span>
-            <span class="text-muted">User confirmed they are safe and unharmed.</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span class="status-pill pill-danger"><span class="status-dot status-danger"></span>Danger</span>
-            <span class="text-muted">User needs immediate help — responders dispatched.</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span class="status-pill pill-unknown"><span class="status-dot status-unknown"></span>Unknown</span>
-            <span class="text-muted">No response received — location must be checked.</span>
-          </div>
-        </div>
+<div class="home-shell">
+  <section class="home-hero" aria-labelledby="home-title">
+    <div class="home-hero-copy">
+      <p class="home-eyebrow">Emergency response coordination</p>
+      <h1 id="home-title">Know where help is needed.<br><span>Act with clarity.</span></h1>
+      <p class="home-lede">ResQmap brings location reports, safety checks, and dispatch decisions into one clear view during an emergency.</p>
+      <div class="hero-actions" id="hero-actions">
+        <a href="/register" class="btn btn-primary" id="hero-register">Get started <span aria-hidden="true">→</span></a>
+        <a href="/login" class="btn btn-outline" id="hero-login">Sign in</a>
+        <a href="/map" class="btn btn-primary" id="hero-map" hidden>Open live map <span aria-hidden="true">→</span></a>
       </div>
-      <div style="margin-left:auto;text-align:center;">
-        <a href="/map" class="btn btn-primary btn-lg">Open Live Map</a>
-      </div>
+      <div class="home-hero-note"><span class="home-signal"></span> Safety status and location in one place</div>
     </div>
-  </div>
+    <div class="home-preview" aria-label="Illustrative ResQmap interface preview">
+      <div class="preview-top"><strong>ResQ<span>map</span></strong><span>OPERATIONS / LIVE STATUS</span></div>
+      <div class="preview-title">Response overview</div>
+      <div class="preview-stats"><div><span class="preview-dot danger"></span><strong>Need help</strong></div><div><span class="preview-dot safe"></span><strong>Safe</strong></div><div><span class="preview-dot unknown"></span><strong>Awaiting response</strong></div></div>
+      <div class="preview-body"><div class="preview-map"><span class="preview-road road-one"></span><span class="preview-road road-two"></span><span class="preview-road road-three"></span><span class="preview-park"></span><span class="preview-marker danger" style="left:39%;top:37%">!</span><span class="preview-marker safe" style="left:22%;top:66%">✓</span><span class="preview-marker unknown" style="left:70%;top:54%">?</span><span class="preview-caption">Illustrative view</span></div><div class="preview-queue"><strong>Priority queue</strong><span><i class="preview-dot danger"></i> Help requested</span><span><i class="preview-dot unknown"></i> No response</span><span><i class="preview-dot safe"></i> Confirmed safe</span></div></div>
+    </div>
+  </section>
+
+  <section class="home-features" aria-labelledby="features-title">
+    <div class="home-section-heading"><p class="home-eyebrow">One shared picture</p><h2 id="features-title">A faster path from signal to response.</h2></div>
+    <div class="feature-grid"><article class="feature-card"><span>01 / LOCATE</span><h3>Live map tracking</h3><p>See the latest shared locations and safety states on a single map. Location updates run every three minutes.</p></article><article class="feature-card"><span>02 / CHECK</span><h3>Safety broadcasts</h3><p>Send a safety check to everyone or contact one person directly when a response is needed.</p></article><article class="feature-card"><span>03 / DISPATCH</span><h3>Zone response</h3><p>Focus police dispatch on the people within a selected disaster zone and radius.</p></article><article class="feature-card"><span>04 / ACT</span><h3>Immediate alerts</h3><p>Danger reports stand out on the map so responders can find the people who need help.</p></article></div>
+  </section>
+
+  <section class="home-status" aria-labelledby="status-title"><div><p class="home-eyebrow">Clear by design</p><h2 id="status-title">Every status has a meaning.</h2><p>Simple, consistent labels help teams make decisions quickly.</p></div><div class="status-list"><div><span class="status-dot status-danger"></span><strong>Need help</strong><p>A person has reported danger and needs attention.</p></div><div><span class="status-dot status-safe"></span><strong>Safe</strong><p>A person has confirmed they are safe.</p></div><div><span class="status-dot status-unknown"></span><strong>Awaiting response</strong><p>A safety check has not been answered yet.</p></div></div></section>
 </div>
 {% endblock %}
 
@@ -67,9 +40,9 @@
 (async () => {
   const user = await loadCurrentUser();
   if (user) {
-    document.getElementById('hero-register').style.display = 'none';
-    document.getElementById('hero-login').style.display = 'none';
-    document.getElementById('hero-map').style.display = '';
+    document.getElementById('hero-register').hidden = true;
+    document.getElementById('hero-login').hidden = true;
+    document.getElementById('hero-map').hidden = false;
   }
 })();
 </script>

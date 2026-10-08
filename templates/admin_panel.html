@@ -1,86 +1,54 @@
 {% extends "base.html" %}
+{% block body_class %}map-workspace-page admin-workspace-page{% endblock %}
 {% block head %}
-<link rel="stylesheet" href="{{ url_for('static', path='/admin.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='/admin.css') }}?v=6">
 {% endblock %}
 
 {% block content %}
-<div class="page">
-  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;">
-    <div>
-      <h1 style="margin-bottom:4px;">Admin Panel</h1>
-      <p class="text-muted">Manage users, roles, and send notifications</p>
+<div class="map-page">
+  <div class="map-main admin-main">
+    <div class="map-topline"><span>Operations <span aria-hidden="true">/</span> Administration</span><span id="last-update">User directory</span></div>
+    <div class="map-heading">
+      <div><p class="map-eyebrow">ResQmap command center</p><h1>Administration</h1><p>Manage access and coordinate safety notifications.</p></div>
+      <a class="map-heading-action" href="/map">Open live map <span aria-hidden="true">→</span></a>
     </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn btn-danger" onclick="openBroadcastModal()">Broadcast to All</button>
-      <a href="/map" class="btn btn-outline">Back to Live Map</a>
+
+    <div class="stats-grid" aria-label="User safety summary">
+      <div class="stat-card"><div class="stat-num" id="count-total">—</div><div class="stat-label">Registered people</div></div>
+      <div class="stat-card"><div class="stat-num" id="count-danger">—</div><div class="stat-label"><span class="status-dot status-danger"></span>Need help</div></div>
+      <div class="stat-card"><div class="stat-num" id="count-unknown">—</div><div class="stat-label"><span class="status-dot status-unknown"></span>Awaiting response</div></div>
     </div>
-  </div>
 
-  <div id="alert-msg" class="alert"></div>
+    <div id="alert-msg" class="alert" role="status"></div>
 
-  <div class="card" style="margin-bottom:20px;">
-    <div class="card-header"><h2>Send Targeted Notification</h2></div>
-    <div class="card-body">
-      <p class="text-muted" style="margin-bottom:16px;">Send a notification to a single user by their ID.</p>
-      <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
-        <div class="form-group" style="margin:0;flex:1;min-width:140px;">
-          <label for="target-user-id">User ID</label>
-          <input type="number" id="target-user-id" class="form-control" placeholder="e.g. 42" min="1">
+    <div class="admin-actions">
+      <section class="admin-action-panel" aria-labelledby="targeted-title">
+        <p class="section-kicker">Individual response</p>
+        <h2 id="targeted-title">Send targeted notification</h2>
+        <p>Reach one person with a safety check or rescue notice.</p>
+        <div class="targeted-fields">
+          <div class="form-group"><label for="target-user-id">User ID</label><input type="number" id="target-user-id" class="form-control" placeholder="e.g. 42" min="1"></div>
+          <div class="form-group"><label for="targeted-type">Notification type</label><select id="targeted-type" class="form-control"><option value="alert">Safety check</option><option value="rescue">Rescue notice</option></select></div>
+          <button class="btn btn-primary" type="button" onclick="sendTargetedAlert()">Send notification <span aria-hidden="true">→</span></button>
         </div>
-        <div class="form-group" style="margin:0;min-width:180px;">
-          <label for="targeted-type">Notification Type</label>
-          <select id="targeted-type" class="form-control">
-            <option value="alert">Alert — Safety Check</option>
-            <option value="rescue">Rescue — Dispatch Notice</option>
-          </select>
-        </div>
-        <button class="btn btn-primary" onclick="sendTargetedAlert()" style="height:42px;">Send</button>
-      </div>
+      </section>
+      <section class="admin-action-panel broadcast-panel" aria-labelledby="broadcast-title">
+        <p class="section-kicker">Area-wide response</p>
+        <h2 id="broadcast-title">Broadcast to everyone</h2>
+        <p>Send a safety check or rescue notice to every registered person. Their status will reset to Awaiting response.</p>
+        <button class="btn btn-danger" type="button" onclick="openBroadcastModal()">Prepare broadcast <span aria-hidden="true">→</span></button>
+      </section>
     </div>
-  </div>
 
-  <div class="card">
-    <div class="card-header">
-      <h2>All Users</h2>
-      <input type="text" id="search-input" class="form-control" placeholder="Search by name or email..." style="width:220px;" oninput="filterTable()">
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Safety Status</th>
-            <th>Role</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="users-tbody">
-          <tr><td colspan="7" style="text-align:center;color:#64748b;padding:32px;">Loading users...</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <section class="admin-directory" aria-labelledby="directory-title">
+      <div class="directory-heading"><div><p class="section-kicker">Directory</p><h2 id="directory-title">All people <span id="visible-count"></span></h2></div><div class="directory-search"><label for="search-input">Search directory</label><input type="search" id="search-input" class="form-control" placeholder="Name or email" oninput="filterTable()"></div></div>
+      <div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Safety status</th><th>Role</th><th>Actions</th></tr></thead><tbody id="users-tbody"><tr><td colspan="7" class="table-empty">Loading people…</td></tr></tbody></table></div>
+    </section>
   </div>
 </div>
 
 <div id="broadcast-modal">
-  <div class="modal-box">
-    <h2>Broadcast to All Users</h2>
-    <p>Choose the notification type, then confirm. All users' status will reset to Unknown.</p>
-    <div class="form-group" style="margin-bottom:20px;text-align:left;">
-      <label for="broadcast-type" style="font-weight:600;font-size:.875rem;">Notification Type</label>
-      <select id="broadcast-type" class="form-control" style="margin-top:6px;">
-        <option value="alert">Alert — Safety Check</option>
-        <option value="rescue">Rescue — Dispatch Notice</option>
-      </select>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeBroadcastModal()">Cancel</button>
-      <button class="btn btn-danger" id="confirm-broadcast-btn" onclick="confirmBroadcast()">Send to Everyone</button>
-    </div>
-  </div>
+  <div class="modal-box"><h2>Broadcast to everyone</h2><p>Choose a notification type. Sending will reset every person’s status to Awaiting response.</p><div class="form-group"><label for="broadcast-type">Notification type</label><select id="broadcast-type" class="form-control"><option value="alert">Safety check</option><option value="rescue">Rescue notice</option></select></div><div class="modal-actions"><button class="btn btn-outline" type="button" onclick="closeBroadcastModal()">Cancel</button><button class="btn btn-danger" type="button" id="confirm-broadcast-btn" onclick="confirmBroadcast()">Send to everyone</button></div></div>
 </div>
 {% endblock %}
 
@@ -89,44 +57,61 @@
 let allUsers = [];
 
 async function loadUsers() {
-  const r = await fetch('/api/users', { headers: authHeaders() });
-  if (r.status === 401) { window.location.href = '/login'; return; }
-  allUsers = await r.json();
-  renderTable(allUsers);
+  try {
+    const r = await fetch('/api/users', { headers: authHeaders() });
+    if (r.status === 401) { window.location.href = '/login'; return; }
+    if (!r.ok) throw new Error('Could not load people');
+    allUsers = await r.json();
+    document.getElementById('count-total').textContent = allUsers.length;
+    document.getElementById('count-danger').textContent = allUsers.filter(u => u.safety_status === 'danger').length;
+    document.getElementById('count-unknown').textContent = allUsers.filter(u => u.safety_status === 'unknown').length;
+    document.getElementById('last-update').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    filterTable();
+  } catch (error) {
+    showAlert('Could not load the directory. Please try again.', 'error');
+    console.error(error);
+  }
 }
 
 function statusPill(s) {
-  return `<span class="status-pill pill-${s}"><span class="status-dot status-${s}"></span>${s}</span>`;
+  const status = ['safe', 'danger', 'unknown'].includes(s) ? s : 'unknown';
+  const label = { safe: 'Safe', danger: 'Need help', unknown: 'Awaiting response' }[status];
+  return `<span class="status-pill pill-${status}"><span class="status-dot status-${status}"></span>${label}</span>`;
 }
 
 function roleBadge(r) {
   const cls   = { admin: 'badge-admin', police: 'badge-police', normal_user: 'badge-user' };
   const label = { admin: 'Admin', police: 'Police', normal_user: 'User' };
-  return `<span class="nav-role-badge ${cls[r] || 'badge-user'}">${label[r] || r}</span>`;
+  return `<span class="nav-role-badge ${cls[r] || 'badge-user'}">${label[r] || 'User'}</span>`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
 }
 
 function renderTable(users) {
   const tbody = document.getElementById('users-tbody');
+  document.getElementById('visible-count').textContent = `(${users.length})`;
   if (!users.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#64748b;padding:32px;">No users found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No people match this search.</td></tr>';
     return;
   }
   tbody.innerHTML = users.map(u => `
     <tr id="row-${u.id}">
       <td>${u.id}</td>
-      <td><strong>${u.name} ${u.last_name}</strong></td>
-      <td>${u.email}</td>
-      <td>${u.phone_number}</td>
+      <td><strong>${escapeHtml(u.name)} ${escapeHtml(u.last_name)}</strong></td>
+      <td>${escapeHtml(u.email)}</td>
+      <td>${escapeHtml(u.phone_number)}</td>
       <td>${statusPill(u.safety_status)}</td>
       <td id="role-cell-${u.id}">${roleBadge(u.role)}</td>
       <td>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-          <select id="msg-type-${u.id}" class="form-control" style="width:120px;padding:4px 8px;font-size:.78rem;height:30px;">
+        <div class="row-actions">
+          <select id="msg-type-${u.id}" class="form-control" aria-label="Notification type for ${escapeHtml(u.name)} ${escapeHtml(u.last_name)}">
             <option value="alert">Alert</option>
             <option value="rescue">Rescue</option>
           </select>
           <button class="btn btn-outline btn-sm" onclick="sendById(${u.id})">Send</button>
-          <select class="form-control" style="width:110px;padding:4px 8px;font-size:.78rem;height:30px;" onchange="updateRole(${u.id}, this.value)">
+          <select class="form-control" aria-label="Role for ${escapeHtml(u.name)} ${escapeHtml(u.last_name)}" onchange="updateRole(${u.id}, this)">
             <option value="normal_user" ${u.role==='normal_user'?'selected':''}>User</option>
             <option value="police"      ${u.role==='police'?'selected':''}>Police</option>
             <option value="admin"       ${u.role==='admin'?'selected':''}>Admin</option>
@@ -141,7 +126,8 @@ function filterTable() {
   renderTable(allUsers.filter(u => `${u.name} ${u.last_name} ${u.email}`.toLowerCase().includes(q)));
 }
 
-async function updateRole(userId, newRole) {
+async function updateRole(userId, select) {
+  const newRole = select.value;
   showAlert('Updating role...', 'info');
   const r = await fetch(`/api/users/${userId}/role`, {
     method: 'PATCH', headers: authHeaders(),
@@ -154,6 +140,8 @@ async function updateRole(userId, newRole) {
     if (idx >= 0) allUsers[idx].role = u.role;
     showAlert('Role updated.', 'success');
   } else {
+    const previous = allUsers.find(x => x.id === userId);
+    if (previous) select.value = previous.role;
     showAlert('Failed to update role.', 'error');
   }
 }
@@ -197,18 +185,25 @@ async function confirmBroadcast() {
   const type = document.getElementById('broadcast-type').value;
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Sending...';
-  const r = await fetch('/api/admin/broadcast', {
-    method: 'POST', headers: authHeaders(),
-    body: JSON.stringify({ notification_type: type }),
-  });
-  const d = await r.json();
-  closeBroadcastModal();
-  const label = type === 'rescue' ? 'Rescue dispatch' : 'Alert';
-  showAlert(`${label} sent to ${d.sent_to} users.`, 'success');
-  showToastSent();
-  loadUsers();
-  btn.disabled = false;
-  btn.textContent = 'Send to Everyone';
+  try {
+    const r = await fetch('/api/admin/broadcast', {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ notification_type: type }),
+    });
+    if (!r.ok) throw new Error('Broadcast failed');
+    const d = await r.json();
+    closeBroadcastModal();
+    const label = type === 'rescue' ? 'Rescue dispatch' : 'Safety check';
+    showAlert(`${label} sent to ${d.sent_to} users.`, 'success');
+    showToastSent();
+    loadUsers();
+  } catch (error) {
+    showAlert('Broadcast failed. Please try again.', 'error');
+    console.error(error);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send to everyone';
+  }
 }
 
 (async () => {

@@ -33,9 +33,17 @@ a { color: var(--brand); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 .site-header {
+  --brand: #1d4ed8;
+  --brand-light: #eff6ff;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-muted: #64748b;
   position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
   padding: 14px 28px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow);
